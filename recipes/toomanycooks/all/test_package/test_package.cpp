@@ -1,5 +1,9 @@
 #include <iostream>
 
+#ifdef TMC_STANDALONE_COMPILATION
+#define TMC_IMPL
+#endif
+
 #include "tmc/all_headers.hpp"
 
 namespace {
