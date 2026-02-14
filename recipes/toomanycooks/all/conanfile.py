@@ -26,6 +26,7 @@ class ToomanycooksConan(ConanFile):
     no_copy_source = True
     options = {
         "with_hwloc": [True, False],
+        "with_asio": [None, "standalone", "boost"],
         "work_item": ["CORO", "FUNCORO"],
         "trivial_task": [True, False],
         "nodiscard_await": [True, False],
@@ -47,6 +48,7 @@ class ToomanycooksConan(ConanFile):
     }
     default_options = {
         "with_hwloc": True,
+        "with_asio": None,
         "work_item": "CORO",
         "trivial_task": False,
         "nodiscard_await": False,
@@ -59,6 +61,7 @@ class ToomanycooksConan(ConanFile):
     }
     options_description = {
         "with_hwloc": "See documentation for TMC_USE_HWLOC",
+        "with_asio": "allows you to add standalone asio and boost::asio as an optional dependency",
         "work_item": "See documentation for TMC_WORK_ITEM",
         "trivial_task": "See documentation for TMC_TRIVIAL_TASK",
         "nodiscard_await": "See documentation for TMC_NODISCARD_AWAIT",
@@ -91,6 +94,10 @@ class ToomanycooksConan(ConanFile):
     def requirements(self):
         if self.options.with_hwloc:
             self.requires("hwloc/[>=2.4]", transitive_headers=True, transitive_libs=True)
+        if self.options.with_asio == "standalone":
+            self.requires("asio/[>=1.28 <2]", transitive_headers=True)
+        if self.options.with_asio == "boost":
+            self.requires(f"boost/[>=1.84]", transitive_headers=True)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -121,6 +128,9 @@ class ToomanycooksConan(ConanFile):
 
         if self.options.with_hwloc:
             self.cpp_info.defines.append("TMC_USE_HWLOC")
+
+        if self.options.with_asio == "boost":
+            self.cpp_info.defines.append("TMC_USE_BOOST_ASIO")
 
         if self.options.standalone_compilation:
             self.cpp_info.defines.append("TMC_STANDALONE_COMPILATION")
